@@ -21,6 +21,12 @@ FROM install AS server_node
 
 COPY --from=build_node /app/build /app/build
 
+# npm is unused at runtime (entrypoint only invokes node) and its bundled
+# dependencies otherwise ship known-vulnerable versions of tar/undici/etc.
+USER root
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
+USER node
+
 EXPOSE 4416
 ENTRYPOINT ["/usr/local/bin/node", "build/main.js"]
 
