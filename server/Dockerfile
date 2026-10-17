@@ -31,7 +31,16 @@ EXPOSE 4416
 ENTRYPOINT ["/usr/local/bin/node", "build/main.js"]
 CMD ["--host", "0.0.0.0"]
 
-FROM denoland/deno:debian-2.9.5 AS server_deno
+FROM denoland/deno:debian-2.9.7 AS server_deno
+
+# The deno base image's Debian layer lags behind published security fixes
+# (glibc/openssl/perl/pcre2/sqlite3/util-linux had fixes sitting unapplied
+# in debian-2.9.5). OS_PATCH_WEEK is a weekly cache-buster passed by
+# SonicSort's build scripts: without it BuildKit would cache this layer
+# forever and stop picking up new fixes.
+ARG OS_PATCH_WEEK=unset
+USER root
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 USER deno
 WORKDIR /app
 ENV DENO_DIR=/app/.cache/deno
