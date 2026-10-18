@@ -1,3 +1,9 @@
+# server_deno's runtime base. SonicSort passes sonicsort-deno:local -- deno
+# compiled from poslogica's deno fork on its own Debian base (same layout as
+# denoland/deno:debian: /usr/bin/deno, a deno user, tini); the default is the
+# public image.
+ARG DENO_BASE=denoland/deno:debian-2.9.7
+
 FROM node:26-bookworm-slim AS install
 USER node
 WORKDIR /app
@@ -31,7 +37,7 @@ EXPOSE 4416
 ENTRYPOINT ["/usr/local/bin/node", "build/main.js"]
 CMD ["--host", "0.0.0.0"]
 
-FROM denoland/deno:debian-2.9.7 AS server_deno
+FROM ${DENO_BASE} AS server_deno
 
 # The deno base image's Debian layer lags behind published security fixes
 # (glibc/openssl/perl/pcre2/sqlite3/util-linux had fixes sitting unapplied
